@@ -10,7 +10,6 @@ task = 'GDI';
 % method = 'CMF';
 method = 'LapRLS';
 
-%%%%%%%%%%%%%%%%%%%%%%%
 
 globa_true_y_lp=[];
 globa_predict_y_lp=[];
