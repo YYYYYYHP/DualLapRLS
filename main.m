@@ -16,7 +16,7 @@ globa_predict_y_lp=[];
 
 results = [];
 
-[ y,K_COM1,K_COM2 ] = loaddata( task );
+[ y,K_COM1,K_COM2  = loaddata( task );
 
 if strcmp(method , 'DLapRLS')
     lamda_1 = [4,2,1,2^-1,2^-2];
