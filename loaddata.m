@@ -28,13 +28,13 @@ if strcmp(task, 'DTI')
         K2_list(:,:,i) = Knormalized(mat);
     end
     % 2. multiple kernel
-    [weight_v1] = FKL_weights(K1,y,1,regcoef);
-    K_COM1 = combine_kernels(weight_v1, K1);
-    [weight_v2] = FKL_weights(K2,y,2,regcoef);
-    K_COM2 = combine_kernels(weight_v2, K2);
+    [weight_v1] = FKL_weights(K1_list,y,1,regcoef);
+    K_COM1 = combine_kernels(weight_v1, K1_list);
+    [weight_v2] = FKL_weights(K2_list,y,2,regcoef);
+    K_COM2 = combine_kernels(weight_v2, K2_list);
     
 elseif strcmp(task, 'GDI')
-    y = load('./data2/GDI_matrix.txt');
+    y = load('./data2/interactions/GDI_matrix.txt');
     fprintf('---------------get Y \n')
     get_kernels = varargin{1};
     if get_kernels
@@ -56,12 +56,12 @@ elseif strcmp(task, 'GDI')
             K2_list(:,:,i) = load(k2_paths{i});
         end
         fprintf('---------------get disease kernels \n')
+    else
+        K_COM1 = load('./data2/Kdiseases_TKA_200.txt');
+        fprintf('---------------get K_COM1 \n')
+        K_COM2 = load('./data2/Kgenes_TKA_200.txt');
+        fprintf('---------------get K_COM2 \n')
     end
-    K_COM1 = load('./data2/Kdiseases_TKA_200.txt');
-    fprintf('---------------get K_COM1 \n')
-    K_COM2 = load('./data2/Kgenes_TKA_200.txt');
-    fprintf('---------------get K_COM2 \n')
-
 end
 
 end

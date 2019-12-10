@@ -1,4 +1,4 @@
-function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(method,y,K_COM1,K_COM2,firstFold,nfolds,varargin)
+function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(method,y,K_COM1,K_COM2,firstFold,nfolds,WKNKN,varargin)
     % split folds
     %     crossval_idx = crossvalind('Kfold', length(y(:)), nfolds);
     crossval_idx = crossvalind('Kfold',y(:),nfolds);
@@ -17,7 +17,9 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
         y_train = y;
         y_train(test_idx) = 0;
 
-        y_train=preprocess_WKNKN(y_train,K_COM1,K_COM2,3,0.5);
+        if WKNKN
+            y_train=preprocess_WKNKN(y_train,K_COM1,K_COM2,3,0.5);
+        end
         
         if strcmp(method,'DLapRLS')
             %runNFolds(method,y,K_COM1,K_COM2,1,nfolds,l1,l2,iter_max)
