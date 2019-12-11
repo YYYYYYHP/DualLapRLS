@@ -1,4 +1,4 @@
-function [ y,K_COM1,K_COM2 ,K1_list,K2_list] = loaddata( task ,varargin)
+function [ y,K_COM1,K_COM2] = loaddata( task )
 %LOADDATA 此处显示有关此函数的摘要
 %   此处显示详细说明
 if strcmp(task, 'DTI')
@@ -36,32 +36,11 @@ if strcmp(task, 'DTI')
 elseif strcmp(task, 'GDI')
     y = load('./data2/interactions/GDI_matrix.txt');
     fprintf('---------------get Y \n')
-    get_kernels = varargin{1};
-    if get_kernels
-        k1_paths = {['data2/kernels/gene_simmat_overlap.txt'],...
-                    ['data2/kernels/gene_simmat_gocc.txt'],...
-                    ['data2/kernels/gene_simmat_ppicos.txt'],...
-                    ['data2/kernels/gene_simmat_sw.txt'],...
-                    };
-        K1_list = [];
-        for i=1:length(k1_paths)
-            K1_list(:,:,i) = load(k1_paths{i});
-        end
-        fprintf('---------------get gene kernels \n')
-        k2_paths = {['data2/kernels/disease_simmat_overlap.txt'],...
-                    ['data2/kernels/disease_simmat_semantic.txt'],...
-                    };
-        K2_list = [];
-        for i=1:length(k2_paths)
-            K2_list(:,:,i) = load(k2_paths{i});
-        end
-        fprintf('---------------get disease kernels \n')
-    else
-        K_COM1 = load('./data2/Kdiseases_TKA_200.txt');
-        fprintf('---------------get K_COM1 \n')
-        K_COM2 = load('./data2/Kgenes_TKA_200.txt');
-        fprintf('---------------get K_COM2 \n')
-    end
+    K_COM1 = load('./data2/Kdiseases_TKA_200.txt');
+    fprintf('---------------get K_COM1 \n')
+    K_COM2 = load('./data2/Kgenes_TKA_200.txt');
+    fprintf('---------------get K_COM2 \n')
+
 end
 
 end

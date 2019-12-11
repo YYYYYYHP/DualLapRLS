@@ -10,31 +10,38 @@ method = 'DLapRLS';
 % method = 'CMF';
 % method = 'LapRLS';
 
-one_kernel = 1;
+CVS = 2;
+one_kernel = 0;
+
 
 globa_true_y_lp=[];
 globa_predict_y_lp=[];
 
 results = [];
 
-[ y,K_COM1,K_COM2,K1_list,K2_list ] = loaddata( task ,one_kernel);
-
-if one_kernel
-    K_COM1 = K1_list(:,:,1);
-    K_COM2 = K2_list(:,:,1);
+if ~one_kernel
+    [ y,K_COM1,K_COM2] = loaddata( task );
+else
+    fprintf('---------------one kernel -- disease semantic -- gene sw-- \n')
+    y = load('./data2/interactions/GDI_matrix.txt');
+    fprintf('---------------get Y \n')
+    K_COM1 = load('data2/kernels/disease_simmat_semantic.txt');
+    fprintf('---------------get K_COM1 \n')
+    K_COM2 = load('data2/kernels/gene_simmat_sw.txt');
+    fprintf('---------------get K_COM2 \n')
 end
 
 if strcmp(method , 'DLapRLS')
-    lamda_1 = [4,2,1,2^-1,2^-2];
-    lamda_2 = [4,2,1,2^-1,2^-2];
+    lamda_1 = 1;
+    lamda_2 = 0.25;
     iter_max = 15;
     WKNKN = 0;
     for l1 = lamda_1
         for l2 = lamda_2
             fprintf('-- lamda_1: %f - lamda_2: %f \n', l1,l2)
-            [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,0,nfolds,WKNKN,l1,l2,iter_max);
+            [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,0,nfolds,CVS,WKNKN,l1,l2,iter_max);
             results = cat(1,results,[l1,l2,mean_aupr,mean_auc]);
-            save_results(['./results/DLapRLS/' task '/mean_NWKNKN_onek_result.txt'],results);
+            %save_results(['./results/DLapRLS/' task '/mean_NWKNKN_onek_result.txt'],results);
         end
     end
   
@@ -48,7 +55,7 @@ elseif strcmp(method , 'DLapRLS_C')
         a2 = 1-a1;
         for l1 = lamda_1
             for l2 = lamda_2
-                [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,1,nfolds,WKNKN,a1,a2,l1,l2,iter_max);
+                [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,1,nfolds,CVS,WKNKN,a1,a2,l1,l2,iter_max);
                 results = cat(1,results,[a1,a2,l1,l2,mean_aupr,mean_auc]);
                 save_results(['./results/DLapRLS_C/' task '/firstFold_result.txt'],results);
             end
@@ -70,7 +77,7 @@ elseif strcmp(method , 'DLapRLS_C1')
             for l1 = lamda_1
                 for l2 = lamda_2
                     fprintf('-METHOD:%s - alpha1: %f - alpha2:%f - beta:%f - lamda_1 :%f - lamda_2 :%f  \n',method,a1,a2,b,l1,l2)
-                    [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,1,nfolds,WKNKN,a1,a2,b,l1,l2,iter_max);
+                    [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,1,nfolds,CVS,WKNKN,a1,a2,b,l1,l2,iter_max);
                     results = cat(1,results,[a1,a2,b,l1,l2,mean_aupr,mean_auc]);
                     save_results(['./results/DLapRLS_C1/' task '/firstFold_result.txt'],results);
                 end
@@ -83,7 +90,7 @@ elseif strcmp(method , 'LapRLS')
     WKNKN = 0;
     for l1 = lamda_1
         fprintf('-METHOD:%s  - lamda_1: %f\n', method,l1)
-        [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,0,nfolds,WKNKN,l1);
+        [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,0,nfolds,CVS,WKNKN,l1);
         results = cat(1,results,[l1,mean_aupr,mean_auc]);
         save_results(['./results/LapRLS/' task '/GDI_mean_result.txt'],results); %2^-4,
     end
@@ -103,7 +110,7 @@ elseif strcmp(method , 'CMF')
             for l2 = lamda_2
                 for lL = lamda_L
                     fprintf('-METHOD:%s - K:%d - lamda_1 :%f - lamda_2 :%f - lamda_L: %f\n',method,k,l1,l2,lL)
-                    [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,0,nfolds,WKNKN,k,l1,l2,lL,iter_max);
+                    [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,0,nfolds,CVS,WKNKN,k,l1,l2,lL,iter_max);
                     results = cat(1,results,[l1,l2,mean_aupr,mean_auc]);
                     save_results(['./results/CMF/' task '/firstFold_result.txt'],results);
                 end

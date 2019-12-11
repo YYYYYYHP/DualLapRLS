@@ -1,8 +1,17 @@
-function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(method,y,K_COM1,K_COM2,firstFold,nfolds,WKNKN,varargin)
+function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(method,y,K_COM1,K_COM2,firstFold,nfolds,CVS,WKNKN,varargin)
     % split folds
     %     crossval_idx = crossvalind('Kfold', length(y(:)), nfolds);
-    crossval_idx = crossvalind('Kfold',y(:),nfolds);
-
+    [num_D,num_G] = size(y);
+    if CVS == 1
+        crossval_idx = crossvalind('Kfold',y(:),nfolds);
+    elseif CVS == 2
+        KP = 1:1:num_D;
+        crossval_idx = crossvalind('Kfold',KP,nfolds);
+    elseif CVS == 3
+        KP = 1:1:num_G;
+        crossval_idx = crossvalind('Kfold',KP,nfolds);
+    end
+    
     fold_auc_fblm_ka = [];
     fold_aupr_fblm_ka = [];
     
@@ -15,7 +24,13 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
         test_idx  = find(crossval_idx==fold);
 
         y_train = y;
-        y_train(test_idx) = 0;
+        if CVS == 1
+            y_train(test_idx) = 0;
+        elseif CVS == 2
+            y_train(test_idx,:) = 0;
+        elseif CVS == 3
+            y_train(:,test_idx) = 0;
+        end
 
         if WKNKN
             y_train=preprocess_WKNKN(y_train,K_COM1,K_COM2,3,0.5);
@@ -71,9 +86,21 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
         yy=y;
         %yy(yy==0)=-1;
         %stats = evaluate_performance(y2(test_idx),yy(test_idx),'classification');
-        test_labels = yy(test_idx);
-        predict_scores = A_cos_com(test_idx);
-
+        if CVS == 1
+            test_labels = yy(test_idx);
+            predict_scores = A_cos_com(test_idx);
+        elseif CVS == 2 
+            test_labels1 = yy(test_idx,:); 
+            test_labels = test_labels1(:);
+            predict_scores = A_cos_com(test_idx,:);
+            predict_scores = predict_scores(:);
+        elseif CVS == 3 
+            test_labels1 = yy(:,test_idx); 
+            test_labels = test_labels1(:);
+            predict_scores = A_cos_com(:,test_idx);
+            predict_scores = predict_scores(:);
+        end
+        
         [X,Y,tpr,aupr_LGC_A_KA] = perfcurve(test_labels,predict_scores,1, 'xCrit', 'reca', 'yCrit', 'prec');
 
         [X,Y,THRE,AUC_LGC_KA,OPTROCPT,SUBY,SUBYNAMES] = perfcurve(test_labels,predict_scores,1);
