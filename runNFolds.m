@@ -19,6 +19,7 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
     globa_predict_y_lp=[];
 
     for fold=1:nfolds
+        datestr(now)
         tic;
         train_idx = find(crossval_idx~=fold);
         test_idx  = find(crossval_idx==fold);
@@ -71,6 +72,27 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
             lamda_L =  varargin{4};
             iter_max =  varargin{5};
             [A_cos_com] = cmf(K_COM1,K_COM2,y_train,k,iter_max,lamda_1,lamda_2,lamda_L);
+       elseif strcmp(method,'grmf')
+            % runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,k,l1,l2,lL,iter_max,p);
+            k =  varargin{1};
+            lamda_1 =  varargin{2};
+            lamda_2 =  varargin{3};
+            lamda_L =  varargin{4};
+            iter_max =  varargin{5};
+            p = varargin{6};
+            [A_cos_com] = grmf(K_COM1,K_COM2,y_train,k,iter_max,lamda_L,lamda_1,lamda_2,p);
+       elseif strcmp(method,'nrlmf')
+            % runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,k,l1,l2,a1,b2,lr,p,iter_max);
+            k =  varargin{1};
+            lamda_1 =  varargin{2};
+            lamda_2 =  varargin{3};
+            alpha_1 =  varargin{4};
+            beta_2 =  varargin{5};
+            learn_rate = varargin{6};
+            p = varargin{7};
+            iter_max = varargin{8};
+            [A_cos_com] = nrlmf(K_COM1,K_COM2,y_train,k,iter_max,lamda_1,lamda_2,c,alpha_1,beta_2,learn_rate,p);
+            %nrlmf(W1,W2,Y,k,Iteration_max,lamda_1,lamda_2,c,alpha_1,beta_2,learn_rate,p_nearest_neighbor)
         else
             %[A_cos_com]  = grtmf(K_COM1,K_COM2,y_train,l,l1,l2,item_max,k);
             %[A_cos_com] = test_TMF(K_COM1,K_COM2,y_train,k1,k2,k,2^l1,2^l1,2^l2,2^l2,item_max);
