@@ -6,9 +6,9 @@ task = 'GDI';
 
 % method = 'DLapRLS';
 % method = 'DLapRLS_C';
-method = 'DLapRLS_C1';
+% method = 'DLapRLS_C1';
 % method = 'CMF';
-% method = 'LapRLS';
+method = 'LapRLS';
 % method = 'grmf'
 % method = 'nrlmf'
 
@@ -69,11 +69,11 @@ elseif strcmp(method , 'DLapRLS_C1')
 %     alpha1 = 0:0.2:2;
 %     beta = [0.01,0.001,0.0001];
     alpha1 = 1;
-    beta = 0.01;
+    beta = 0.1;
 %     lamda_1 = [2,1,2^-1,2^-2];
 %     lamda_2 = [2,1,2^-1,2^-2];
     lamda_1=1;
-    lamda_2=0.25;
+    lamda_2=0.5;
     iter_max = 10;
     WKNKN = 0;
     first = 0;
@@ -86,22 +86,25 @@ elseif strcmp(method , 'DLapRLS_C1')
                     fprintf('-METHOD:%s - alpha1: %f - alpha2:%f - beta:%f - lamda_1 :%f - lamda_2 :%f  \n',method,a1,a2,b,l1,l2)
                     [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,a1,a2,b,l1,l2,iter_max);
                     results = cat(1,results,[a1,a2,b,l1,l2,mean_aupr,mean_auc]);
-                    save_results(['./results/DLapRLS_C1/' task '/1_025_GDI_mean_NWKNKN_CVS3_result.txt'],results);
+                    save_results(['./results/DLapRLS_C1/' task '/b1_1_01_GDI_mean_NWKNKN_CVS3_result.txt'],results);
                 end
             end
         end
     end
     
 elseif strcmp(method , 'LapRLS')
-    lamda_1 = [2^-2,2^-1,1,2,2^2];
+    lamda_1 = [2^-8,2^-7,2^-6,2^-5,2^-4,2^-3,2^-2,2^-1,1,2,4,8];
+    p_nearest_neighbor = [10,30,50]
     WKNKN = 0;
     CVS = 1;
     first = 0;
     for l1 = lamda_1
-        fprintf('-METHOD:%s  - lamda_1: %f\n', method,l1)
-        [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,l1);
-        results = cat(1,results,[l1,mean_aupr,mean_auc]);
-        save_results(['./results/LapRLS/' task '/GDI_mean_CVS1_result.txt'],results); %2^-4,
+        for p = p_nearest_neighbor
+            fprintf('-METHOD:%s  - lamda_1: %f ---- p = %d\n', method,l1,p)
+            [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,l1,p);
+            results = cat(1,results,[l1,p,mean_aupr,mean_auc]);
+            save_results(['./results/LapRLS/' task '/p_GDI_mean_CVS1_result.txt'],results); %2^-4,
+        end
     end
     
 elseif strcmp(method , 'grmf')
@@ -128,7 +131,7 @@ elseif strcmp(method , 'grmf')
     end
     
 elseif strcmp(method , 'nrlmf')
-    K = 700:100:900;
+    K = 700:100:800;
     lamda_1 = [2^-5,2^-4,2^-3,2^-2,2^-1,1];
     alpha_1 = [2^-5,2^-4,2^-3,2^-2,2^-1,1,2,4];
     beta_2 = [2^-5,2^-4,2^-3,2^-2,2^-1,1];

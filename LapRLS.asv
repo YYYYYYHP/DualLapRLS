@@ -33,7 +33,7 @@ L_D_11 = d_tmep_1*L_D_1*d_tmep_1;
 fprintf('Sparsification of the similarity matrix 2\n');
 % S_2 = N_2.*W2;
 % S_2 = W2;
-S_2 = preprocess_PNN(W2,p_nearest_neighbor);
+
 d_2 = sum(S_2);
 D_2 = diag(d_2);
 L_D_2 = D_2 - S_2;

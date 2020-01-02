@@ -61,9 +61,10 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
             iter_max = varargin{6};
             [A_cos_com]  = DLapRLS_C1(K_COM1,K_COM2,y_train,alpha_1,alpha_2,beta,lamda_1,lamda_2,iter_max,0);
         elseif strcmp(method,'LapRLS')
-            %runNFolds(method,y,K_COM1,K_COM2,1,nfolds,l1)
+            % runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,l1,p);
             lamda = varargin{1};
-            [A_cos_com]  = LapRLS(K_COM1,K_COM2,y_train,lamda,0,1);
+            p = varargin{2};
+            [A_cos_com]  = LapRLS(K_COM1,K_COM2,y_train,lamda,p,1);
         elseif strcmp(method,'CMF')
             %runNFolds(method,y,K_COM1,K_COM2,1,nfolds,k,l1,l2,lL,iter_max)
             k =  varargin{1};
