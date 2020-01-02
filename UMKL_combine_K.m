@@ -24,16 +24,16 @@ for l1 = lamda_1
         [weight_v2] = mas_UMKL_kernels_weights_norm(K2_list,lamda_1,lamda_2)
         K_COM2 = combine_kernels(weight_v2, K2_list);
         w = [lamda_1,lamda_2,weight_v1,weight_v2]
-        fid=fopen('./weights.txt','at+'); %写的方式打开文件（若不存在，建立文件）
+        fid=fopen('./weights.txt','at+'); 
         for i = 1:length(w)
-            fprintf(fid,'%f ',w(i));  % %d 
+            fprintf(fid,'%f ',w(i));  
             if i == length(w)
-                fprintf(fid,'\n');  % %d 
+                fprintf(fid,'\n');  
             else
                 fprintf(fid,',');
             end
         end
-        fclose(fid);  %关闭文件；
+        fclose(fid); 
     end
 end
 % save_results('./data2/Kdiseases_UMKL_0505',K_COM1)
