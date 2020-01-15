@@ -14,6 +14,7 @@ method = 'DHRLS';
 % method = 'nrlmf'
 
 mkl_method = 'CKA';
+% mkl_method = 'TKA';
 
 one_kernel = 0;
 % dk_type = 'overlap';
