@@ -7,13 +7,19 @@ task = 'GDI';
 % method = 'DLapRLS';
 % method = 'DLapRLS_C';
 % method = 'DLapRLS_C1';
+method = 'DHRLS';
 % method = 'CMF';
-method = 'LapRLS';
+% method = 'LapRLS';
 % method = 'grmf'
 % method = 'nrlmf'
 
-one_kernel = 0;
+mkl_method = 'CKA';
 
+one_kernel = 0;
+% dk_type = 'overlap';
+% dk_type = 'semantic';
+% gk_type = 'overlap';
+% gk_type = 'gocc';
 
 globa_true_y_lp=[];
 globa_predict_y_lp=[];
@@ -21,14 +27,16 @@ globa_predict_y_lp=[];
 results = [];
 
 if ~one_kernel
-    [ y,K_COM1,K_COM2] = loaddata( task );
+    [ y,K_COM1,K_COM2] = loaddata( task ,mkl_method);
 else
-    fprintf('---------------one kernel -- disease semantic -- gene sw-- \n')
+    fprintf('---------------one kernel -- disease %s -- gene %s-- \n', dk_type, gk_type);
     y = load('./data2/interactions/GDI_matrix.txt');
     fprintf('---------------get Y \n')
-    K_COM1 = load('data2/kernels/disease_simmat_semantic.txt');
+    K_COM1 = load(['data2/kernels/disease_simmat_' dk_type '.txt']);
+    K_COM1 = Knormalized(K_COM1);
     fprintf('---------------get K_COM1 \n')
-    K_COM2 = load('data2/kernels/gene_simmat_sw.txt');
+    K_COM2 = load(['data2/kernels/gene_simmat_' gk_type '.txt']);
+    K_COM2 = Knormalized(K_COM2);
     fprintf('---------------get K_COM2 \n')
 end
 
@@ -69,15 +77,15 @@ elseif strcmp(method , 'DLapRLS_C1')
 %     alpha1 = 0:0.2:2;
 %     beta = [0.01,0.001,0.0001];
     alpha1 = 1;
-    beta = 0.1;
+    beta = 0.01;
 %     lamda_1 = [2,1,2^-1,2^-2];
 %     lamda_2 = [2,1,2^-1,2^-2];
-    lamda_1=1;
+    lamda_1=0.5;
     lamda_2=0.5;
     iter_max = 10;
     WKNKN = 0;
     first = 0;
-    CVS = 3;
+    CVS = 1;
     for a1 = alpha1
         a2 = 2-a1;
         for b = beta
@@ -86,15 +94,49 @@ elseif strcmp(method , 'DLapRLS_C1')
                     fprintf('-METHOD:%s - alpha1: %f - alpha2:%f - beta:%f - lamda_1 :%f - lamda_2 :%f  \n',method,a1,a2,b,l1,l2)
                     [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,a1,a2,b,l1,l2,iter_max);
                     results = cat(1,results,[a1,a2,b,l1,l2,mean_aupr,mean_auc]);
-                    save_results(['./results/DLapRLS_C1/' task '/b1_1_01_GDI_mean_NWKNKN_CVS3_result.txt'],results);
+                    if one_kernel 
+                        save_results(['./results/DLapRLS_C1/' task '/onekernel_normalized_' dk_type '_' gk_type '_GDI_mean_NWKNKN_CVS1_result.txt'],results);
+                    else
+                        save_results(['./results/DLapRLS_C1/' task '/cka_GDI_mean_NWKNKN_CVS1_result.txt'],results);
+                    end
+                end
+            end
+        end
+    end
+elseif strcmp(method , 'DHRLS')
+%     beta = [0.01,0.001,0.0001];
+    beta = 0.01;
+%     lamda_1 = [2,1,2^-1,2^-2];
+%     lamda_2 = [2,1,2^-1,2^-2];
+    lamda_1=0.5;
+    lamda_2=0.5;
+    knn = [10,30,50];
+    iter_max = 10;
+    WKNKN = 0;
+    first = 0;
+    CVS = 1;
+    for b = beta
+        for l1 = lamda_1
+            for l2 = lamda_2
+                for k = knn
+                    fprintf('-METHOD:%s -- beta:%f - lamda_1 :%f - lamda_2 :%f - knn : %d \n',method,b,l1,l2,k)
+                    [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,b,l1,l2,k,iter_max);
+                    results = cat(1,results,[b,l1,l2,k,mean_aupr,mean_auc]);
+                    if one_kernel 
+                        save_results(['./results/' method '/' task '/onekernel_normalized_' dk_type '_' gk_type '_GDI_mean_NWKNKN_CVS1_result.txt'],results);
+                    else
+                        save_results(['./results/' method '/' task '/' mkl_method '_GDI_mean_NWKNKN_CVS ' CVS '_result.txt'],results);
+                    end
                 end
             end
         end
     end
     
 elseif strcmp(method , 'LapRLS')
-    lamda_1 = [2^-8,2^-7,2^-6,2^-5,2^-4,2^-3,2^-2,2^-1,1,2,4,8];
-    p_nearest_neighbor = [10,30,50]
+%     lamda_1 = [2^-8,2^-7,2^-6,2^-5,2^-4,2^-3,2^-2,2^-1,1,2,4,8];
+%      lamda_1 = [2^-6,2^-5,2^-4,2^-3,2^-2,2^-1,1,2,4,8];
+    lamda_1 = [1, 2, 4, 8];
+    p_nearest_neighbor = 10;
     WKNKN = 0;
     CVS = 1;
     first = 0;
@@ -103,7 +145,7 @@ elseif strcmp(method , 'LapRLS')
             fprintf('-METHOD:%s  - lamda_1: %f ---- p = %d\n', method,l1,p)
             [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp ] = runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,l1,p);
             results = cat(1,results,[l1,p,mean_aupr,mean_auc]);
-            save_results(['./results/LapRLS/' task '/p_GDI_mean_CVS1_result.txt'],results); %2^-4,
+            save_results(['./results/LapRLS/' task '/p_GDI_mean3_CVS1_result.txt'],results); %2^-4,
         end
     end
     

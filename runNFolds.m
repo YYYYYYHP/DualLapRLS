@@ -60,6 +60,14 @@ function [ mean_aupr,mean_auc,globa_true_y_lp,globa_predict_y_lp] = runNFolds(me
             lamda_2 = varargin{5};
             iter_max = varargin{6};
             [A_cos_com]  = DLapRLS_C1(K_COM1,K_COM2,y_train,alpha_1,alpha_2,beta,lamda_1,lamda_2,iter_max,0);
+        elseif strcmp(method,'DHRLS')
+            % runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,b,l1,l2,k,iter_max);
+            beta = varargin{1};
+            lamda_1 = varargin{2};
+            lamda_2 = varargin{3};
+            knn = varargin{4};
+            iter_max = varargin{5};
+            [A_cos_com]  = DHRLS(K_COM1,K_COM2,y_train,beta,lamda_1,lamda_2,knn,iter_max);
         elseif strcmp(method,'LapRLS')
             % runNFolds(method,y,K_COM1,K_COM2,first,nfolds,CVS,WKNKN,l1,p);
             lamda = varargin{1};

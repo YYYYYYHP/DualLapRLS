@@ -63,7 +63,7 @@ for ii=1:iterMax
 	Ta_d = alpha1*pinv(alpha1^2*W1*W1 + beta*eye(num_1) + lambda1*W1*L_D_11*W1 )*(2*W1*y -alpha2* W1* Ta_t'*W2);
 % 	temp_t = alpha2*(y -alpha1* W1*Ta_d)/(alpha2*lambda2*L_D_22*W2 + alpha2^2*W2);
 	Ta_t = alpha2*pinv(alpha2^2*W2*W2 + beta*eye(num_2) + lambda2*W2*L_D_22*W2 )*(2*W2*y' -alpha1* W2* Ta_d'*W1);
-
+    fprintf('---------------iteration :%d\n',ii);
 end
 %LapA =W1*Ta_d;
 %LapA = (W2*Ta_t)';

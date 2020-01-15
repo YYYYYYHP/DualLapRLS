@@ -1,4 +1,4 @@
-function [ y,K_COM1,K_COM2] = loaddata( task )
+function [ y,K_COM1,K_COM2] = loaddata( task ,mkl_method)
 %LOADDATA 此处显示有关此函数的摘要
 %   此处显示详细说明
 if strcmp(task, 'DTI')
@@ -36,10 +36,12 @@ if strcmp(task, 'DTI')
 elseif strcmp(task, 'GDI')
     y = load('./data2/interactions/GDI_matrix.txt');
     fprintf('---------------get Y \n')
-    K_COM1 = load('./data2/Kdiseases_TKA_200.txt');
+    fprintf('----------MKL Method:%s\n',mkl_method);
+    K_COM1 = load(['./data2/Kdiseases_' mkl_method '.txt']);
     fprintf('---------------get K_COM1 \n')
-    K_COM2 = load('./data2/Kgenes_TKA_200.txt');
+    K_COM2 = load(['./data2/Kgenes_' mkl_method '.txt']);
     fprintf('---------------get K_COM2 \n')
+    
 
 end
 
